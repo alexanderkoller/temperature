@@ -1,2 +1,4 @@
 flask
+pysqlite3
 sqlalchemy-pysqlite3
+bokeh
