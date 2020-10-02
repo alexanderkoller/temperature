@@ -3,7 +3,7 @@
 #include <WiFiNINA.h>
 #include <HttpClient.h>
 
-#define SECRET_SSID "alexander_w"
+#define SECRET_SSID "alexander"
 #define SECRET_PASS "FBEsAsDesGes!"
 
 
