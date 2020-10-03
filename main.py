@@ -1,3 +1,4 @@
+import math
 from flask import Flask
 from sqlalchemy import create_engine
 from sqlalchemy.sql import func
@@ -8,6 +9,9 @@ from flask import request
 from flask import render_template
 from bokeh.plotting import figure
 from bokeh.embed import components
+from scipy import stats
+import numpy as np
+from datetime import timedelta
 
 engine = create_engine('sqlite+pysqlite3:///data.db')
 Session = sessionmaker(bind=engine)
@@ -35,20 +39,50 @@ def post_measurement():
 
 @app.route("/")
 def index():
+    target_temperature = 37.0
+
     session = Session()
     meta = session.query(Metadatum).order_by(desc_op(Metadatum.id)).first()
     id = meta.id
-    measurements = session.query(Measurement).filter(Measurement.measurement_run == id).order_by(Measurement.id).all()
+    # id=24
 
+    # get measurements
+    measurements = session.query(Measurement).filter(Measurement.measurement_run == id).order_by(Measurement.id).all()
     y = [x.temperature for x in measurements]
     x = [a.timestamp for a in measurements]
 
+    # linear regression
+    a_y = np.array(y)
+    start_pos = np.argmin(a_y) # step of min temperature
+    slope, intercept, _, _, _ = stats.linregress(range(start_pos, len(x)), a_y[start_pos:])
+    regression_available = not math.isnan(intercept) and not math.isnan(slope)
+
+    if regression_available:
+        # temperature growth rate
+        interval = x[-1] - x[-2]                            # time per step [timedelta]
+        steps_per_minute = timedelta(minutes=1) / interval  # intervals per minute [float]
+        degrees_per_minute = slope * steps_per_minute
+
+        # ETA to target temperature
+        steps_to_37 = (target_temperature - intercept) / slope   # [steps (float)]
+        eta = x[0] + interval*steps_to_37
+    
+    else:
+        degrees_per_minute, eta = None, None
+
+    # plot data
     plot = figure(plot_height=300, sizing_mode='scale_width', x_axis_type='datetime')
     plot.line(x, y, line_width=4)
-    plot.line([min(x),max(x)], [37,37], line_color='red', line_dash='dashed')
+
+    # decorate data
+    plot.line([min(x),max(x)], [target_temperature, target_temperature], line_color='red', line_dash='dashed')                   # horizontal line at 37 degrees
+
+    if regression_available:
+        plot.line([x[start_pos], x[-1]], [intercept+slope*start_pos, intercept+slope*(len(x)-1)])   # regression line
+
     script, div = components(plot)
 
-    return render_template('template.html', metadata=meta, temp=y[-1], plots=[(script,div)])
+    return render_template('template.html', metadata=meta, temp=y[-1], eta=eta, degrees_per_minute=degrees_per_minute, plots=[(script,div)])
 
 
 if __name__ == '__main__':
