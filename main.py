@@ -1,4 +1,5 @@
 import math
+from regression import LinearRegression
 from flask import Flask
 from sqlalchemy import create_engine
 from sqlalchemy.sql import func
@@ -60,12 +61,16 @@ def index():
     # linear regression
     a_y = np.array(y)
     start_pos = np.argmin(a_y) # step of min temperature
+
+    lr = LinearRegression()
+
+
     slope, intercept, _, _, _ = stats.linregress(range(start_pos, len(x)), a_y[start_pos:])
     regression_available = not math.isnan(intercept) and not math.isnan(slope)
 
     if regression_available:
         # temperature growth rate
-        interval = x[-1] - x[-2]                            # time per step [timedelta]
+        interval = (x[-1] - x[0])/(len(x)-1)                            # time per step [timedelta]
         steps_per_minute = timedelta(minutes=1) / interval  # intervals per minute [float]
         degrees_per_minute = slope * steps_per_minute
 
