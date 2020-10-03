@@ -12,8 +12,14 @@ from bokeh.embed import components
 from scipy import stats
 import numpy as np
 from datetime import timedelta
+import configparser
 
-engine = create_engine('sqlite+pysqlite3:///data.db')
+# read config
+config = configparser.ConfigParser()
+config.read('server.ini')
+
+# start DB engine
+engine = create_engine(config["database"]["url"])
 Session = sessionmaker(bind=engine)
 
 
@@ -86,5 +92,5 @@ def index():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    app.run(debug=True, host='0.0.0.0', port=int(config["server"]["port"]))
 

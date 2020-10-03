@@ -3,3 +3,5 @@ pysqlite3
 sqlalchemy-pysqlite3
 bokeh
 scipy
+numpy
+
