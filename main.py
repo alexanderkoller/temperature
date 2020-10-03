@@ -59,18 +59,14 @@ def index():
 
     # linear regression
     a_y = np.array(y)
-    start_pos = np.argmin(a_y) # step of min temperature
-
-    lr = LinearRegression()
-
-
+    start_pos = np.argmin(a_y)                                   # step of min temperature
     slope, intercept, _, _, _ = stats.linregress(range(start_pos, len(x)), a_y[start_pos:])
     regression_available = not math.isnan(intercept) and not math.isnan(slope)
 
     if regression_available:
         # temperature growth rate
-        interval = (x[-1] - x[0])/(len(x)-1)                            # time per step [timedelta]
-        steps_per_minute = timedelta(minutes=1) / interval  # intervals per minute [float]
+        interval = (x[-1] - x[0])/(len(x)-1)                     # time per step [timedelta]
+        steps_per_minute = timedelta(minutes=1) / interval       # intervals per minute [float]
         degrees_per_minute = slope * steps_per_minute
 
         # ETA to target temperature
@@ -85,10 +81,10 @@ def index():
     plot.line(x, y, line_width=4)
 
     # decorate data
-    plot.line([min(x),max(x)], [target_temperature, target_temperature], line_color='red', line_dash='dashed')                   # horizontal line at 37 degrees
+    plot.line([min(x),max(x)], [target_temperature, target_temperature], line_color='red', line_dash='dashed')      # horizontal line at 37 degrees
 
     if regression_available:
-        plot.line([x[start_pos], x[-1]], [intercept+slope*start_pos, intercept+slope*(len(x)-1)])   # regression line
+        plot.line([x[start_pos], x[-1]], [intercept+slope*start_pos, intercept+slope*(len(x)-1)])                   # regression line
 
     script, div = components(plot)
 
