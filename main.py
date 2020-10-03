@@ -1,5 +1,4 @@
 import math
-from regression import LinearRegression
 from flask import Flask
 from sqlalchemy import create_engine
 from sqlalchemy.sql import func
