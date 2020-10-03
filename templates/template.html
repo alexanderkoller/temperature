@@ -7,7 +7,11 @@
   </head>
   <body>
     <div>
-        <h1>Aufwärmen #{{ id }}</h1>
+        <h1>Aufwärmen #{{ metadata.id }}</h1>
+
+        <p><strong>Startzeit:</strong> {{ metadata.timestamp }}<br/>
+        <strong>Aktuelle Temperatur:</strong> {{ temp }} °C</p>
+
         {% for plot in plots %}
         {% for part in plot %}
             {{part | safe}}

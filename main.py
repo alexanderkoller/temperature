@@ -2,6 +2,7 @@ from flask import Flask
 from sqlalchemy import create_engine
 from sqlalchemy.sql import func
 from sqlalchemy.orm.session import sessionmaker
+from sqlalchemy.sql.operators import desc_op
 from tables import *
 from flask import request
 from flask import render_template
@@ -35,11 +36,11 @@ def post_measurement():
 @app.route("/")
 def index():
     session = Session()
-    id = session.query(func.max(Metadatum.id)).scalar()
-
+    meta = session.query(Metadatum).order_by(desc_op(Metadatum.id)).first()
+    id = meta.id
     measurements = session.query(Measurement).filter(Measurement.measurement_run == id).order_by(Measurement.id).all()
+
     y = [x.temperature for x in measurements]
-    # x = list(range(len(y)))
     x = [a.timestamp for a in measurements]
 
     plot = figure(plot_height=300, sizing_mode='scale_width', x_axis_type='datetime')
@@ -47,7 +48,7 @@ def index():
     plot.line([min(x),max(x)], [37,37], line_color='red', line_dash='dashed')
     script, div = components(plot)
 
-    return render_template('template.html', id=id, plots=[(script,div)])
+    return render_template('template.html', metadata=meta, temp=y[-1], plots=[(script,div)])
 
 
 if __name__ == '__main__':
