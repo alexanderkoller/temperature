@@ -1,5 +1,6 @@
 import math
 from flask import Flask
+import pytz
 from sqlalchemy import create_engine
 from sqlalchemy.sql import func
 from sqlalchemy.orm.session import sessionmaker
@@ -16,6 +17,8 @@ import configparser
 from tornado.wsgi import WSGIContainer
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
+from pytz import timezone
+from tzlocal import get_localzone
 
 # read config
 config = configparser.ConfigParser()
@@ -46,6 +49,12 @@ def post_measurement():
     session.commit()
     return "hallo"
 
+# Converts the given datetime from UTC to the local timezone.
+def localize(dt):
+    utc = pytz.timezone("UTC")
+    dt_utc = utc.localize(dt)
+    return dt_utc.astimezone(get_localzone())
+
 @app.route("/")
 def index():
     target_temperature = 37.0
@@ -74,7 +83,7 @@ def index():
 
         # ETA to target temperature
         steps_to_37 = (target_temperature - intercept) / slope   # [steps (float)]
-        eta = x[0] + interval*steps_to_37
+        eta = localize(x[0] + interval*steps_to_37)
     
     else:
         degrees_per_minute, eta = None, None
@@ -90,7 +99,8 @@ def index():
         plot.line([x[start_pos], x[-1]], [intercept+slope*start_pos, intercept+slope*(len(x)-1)])                   # regression line
 
     script, div = components(plot)
-    return render_template('adminlte.html', metadata=meta, temp=y[-1], eta=eta, degrees_per_minute=degrees_per_minute, plots=[(script,div)])
+    start_time = localize(meta.timestamp)
+    return render_template('adminlte.html', start_time=start_time, metadata=meta, temp=y[-1], eta=eta, degrees_per_minute=degrees_per_minute, plots=[(script,div)])
 
 
 if __name__ == '__main__':

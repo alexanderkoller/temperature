@@ -5,4 +5,5 @@ bokeh
 numpy
 scipy
 tornado
-
+pytz
+tzlocal
