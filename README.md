@@ -9,3 +9,13 @@ Start as follows:
 python main.py
 ```
 
+
+## Running on a Raspberry Pi
+
+On a Raspberry Pi, compiling scipy from sources takes forever, if it
+can be done at all. You can instead install a compiled package as
+follows:
+
+```
+sudo apt-get install python3-scipy
+```

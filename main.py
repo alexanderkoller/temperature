@@ -13,6 +13,9 @@ from scipy import stats
 import numpy as np
 from datetime import timedelta
 import configparser
+from tornado.wsgi import WSGIContainer
+from tornado.httpserver import HTTPServer
+from tornado.ioloop import IOLoop
 
 # read config
 config = configparser.ConfigParser()
@@ -92,5 +95,15 @@ def index():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=int(config["server"]["port"]))
+    port=int(config["server"]["port"])
+
+    if "true" == config["server"]["tornado"].lower():
+        print("Running with Tornado server ...")
+        http_server = HTTPServer(WSGIContainer(app))
+        http_server.listen(port)
+        IOLoop.instance().start()
+
+    else:
+        print("Running with Flask server ...")
+        app.run(debug=True, host='0.0.0.0', port=port)
 
