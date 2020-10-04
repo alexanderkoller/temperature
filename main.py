@@ -57,7 +57,7 @@ def index():
 
     # get measurements
     measurements = session.query(Measurement).filter(Measurement.measurement_run == id).order_by(Measurement.id).all()
-    y = [x.temperature for x in measurements]
+    y = [a.temperature for a in measurements]
     x = [a.timestamp for a in measurements]
 
     # linear regression
@@ -90,7 +90,6 @@ def index():
         plot.line([x[start_pos], x[-1]], [intercept+slope*start_pos, intercept+slope*(len(x)-1)])                   # regression line
 
     script, div = components(plot)
-
     return render_template('adminlte.html', metadata=meta, temp=y[-1], eta=eta, degrees_per_minute=degrees_per_minute, plots=[(script,div)])
 
 
