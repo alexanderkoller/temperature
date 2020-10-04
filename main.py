@@ -78,7 +78,7 @@ def index():
 
     # plot data
     plot = figure(plot_height=300, sizing_mode='scale_width', x_axis_type='datetime')
-    plot.line(x, y, line_width=4)
+    plot.line(x, y, line_width=3)
 
     # decorate data
     plot.line([min(x),max(x)], [target_temperature, target_temperature], line_color='red', line_dash='dashed')      # horizontal line at 37 degrees
@@ -88,7 +88,7 @@ def index():
 
     script, div = components(plot)
 
-    return render_template('template.html', metadata=meta, temp=y[-1], eta=eta, degrees_per_minute=degrees_per_minute, plots=[(script,div)])
+    return render_template('adminlte.html', metadata=meta, temp=y[-1], eta=eta, degrees_per_minute=degrees_per_minute, plots=[(script,div)])
 
 
 if __name__ == '__main__':

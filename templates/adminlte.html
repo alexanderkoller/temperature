@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta http-equiv="refresh" content="10" />  <!-- reload every 10 seconds -->
+
+    <title>Fläschchen-Thermometer</title>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="static/AdminLTE-3.0.5/plugins/fontawesome-free/css/all.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="static/AdminLTE-3.0.5/dist/css/adminlte.min.css">
+    <!-- Google Font: Source Sans Pro -->
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+
+    <!-- Bokeh includes-->
+    <link rel="stylesheet" href="http://cdn.pydata.org/bokeh/release/bokeh-2.2.1.min.css" type="text/css" />
+    <script type="text/javascript" src="http://cdn.pydata.org/bokeh/release/bokeh-2.2.1.min.js"></script>
+</head>
+
+<body class="hold-transition layout-top-nav">
+<div class="wrapper">
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0 text-dark">Fläschchen #{{ metadata.id }}</h1>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <div class="content">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-lg-6">
+
+            <div class="info-box">
+              <span class="info-box-icon bg-info"><i class="fas fa-hourglass-start"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text">Anfangszeit</span>
+                <span class="info-box-number">{{ metadata.timestamp.strftime("%H:%M") }}</span>
+              </div>
+              <!-- /.info-box-content -->
+            </div>
+
+            <div class="info-box">
+              <span class="info-box-icon bg-danger"><i class="fas fa-thermometer-half"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text">Aktuelle Temperatur</span>
+                <span class="info-box-number">{{ "%.1f"|format(temp) }} °C</span>
+              </div> <!-- /.info-box-content -->              
+            </div>
+          </div> <!-- /.col-md-6 -->
+
+          <!-- /.info-box-content -->
+          
+          {% if degrees_per_minute %}
+          <div class="col-lg-6">
+            <div class="info-box">
+              <span class="info-box-icon bg-success"><i class="fas fa-hourglass-end"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text">Abschlusszeit (geschätzt)</span>
+                <span class="info-box-number">{{ eta.strftime("%H:%M") }}</span>
+              </div>
+              <!-- /.info-box-content -->
+            </div>
+
+            <div class="info-box">
+              <span class="info-box-icon bg-gradient-warning"><i class="fas fa-arrow-up"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text">Erwärmungsrate (geschätzt)</span>
+                <span class="info-box-number">{{ "%.1f"|format(degrees_per_minute) }} °C/min</span>
+              </div>
+              <!-- /.info-box-content -->
+            </div>
+          </div> <!-- /.col-md-6 -->
+          {% endif %}
+        </div>
+        <!-- /.row -->
+
+        <div class="row">
+            <div class="col-lg-12">
+            {% for plot in plots %}
+                {% for part in plot %}
+                    {{part | safe}}
+                {% endfor %}
+            {% endfor %}
+            </div>
+        </div>
+
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+  <!-- Control Sidebar -->
+  <aside class="control-sidebar control-sidebar-dark">
+    <!-- Control sidebar content goes here -->
+    <div class="p-3">
+      <h5>Title</h5>
+      <p>Sidebar content</p>
+    </div>
+  </aside>
+  <!-- /.control-sidebar -->
+
+ 
+</div>
+<!-- ./wrapper -->
+
+<!-- REQUIRED SCRIPTS -->
+
+<!-- jQuery -->
+<script src="static/AdminLTE-3.0.5/plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="static/AdminLTE-3.0.5/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- AdminLTE App -->
+<script src="static/AdminLTE-3.0.5/dist/js/adminlte.min.js"></script>
+</body>
+</html>
