@@ -69,10 +69,15 @@ def index():
     y = [a.temperature for a in measurements]
     x = [a.timestamp for a in measurements]
 
-    # linear regression
+    # linear regression. use the latest data points so the slope better approximates the latest derivative.
     a_y = np.array(y)
-    start_pos = np.argmin(a_y)                                   # step of min temperature
-    slope, intercept, _, _, _ = stats.linregress(range(start_pos, len(x)), a_y[start_pos:])
+    start_pos = np.argmin(a_y)
+    min_num_points = 50
+    proportion = 0.1
+    num_points = max(min_num_points, int(proportion * len(x)))
+    linreg_start_pos = len(x) - num_points
+    slope, intercept, _, _, _ = stats.linregress(range(linreg_start_pos, len(x)), a_y[linreg_start_pos:])
+    # step of min temperature
     regression_available = not math.isnan(intercept) and not math.isnan(slope)
 
     if regression_available:
