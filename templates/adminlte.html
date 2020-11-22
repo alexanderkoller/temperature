@@ -70,7 +70,7 @@
               <span class="info-box-icon bg-success"><i class="fas fa-hourglass-end"></i></span>
               <div class="info-box-content">
                 <span class="info-box-text">Abschlusszeit (geschätzt)</span>
-                <span class="info-box-number">{{ eta.strftime("%H:%M") }}</span>
+                <span class="info-box-number">{% if eta %}{{ eta.strftime("%H:%M") }}{% else %}N/A{% endif %}</span>
               </div>
               <!-- /.info-box-content -->
             </div>
