@@ -15,11 +15,11 @@ class Metadatum(Base):
     description = Column(Text)
 
 
-t_sqlite_sequence = Table(
-    'sqlite_sequence', metadata,
-    Column('name', NullType),
-    Column('seq', NullType)
-)
+# t_sqlite_sequence = Table(
+#     'sqlite_sequence', metadata,
+#     Column('name', NullType),
+#     Column('seq', NullType)
+# )
 
 
 class Measurement(Base):

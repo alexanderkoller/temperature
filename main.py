@@ -27,6 +27,7 @@ config.read('server.ini')
 # start DB engine
 engine = create_engine(config["database"]["url"])
 Session = sessionmaker(bind=engine)
+metadata.create_all(engine)
 
 
 app = Flask(__name__)
@@ -79,48 +80,53 @@ def index():
 
     session = Session()
     meta = session.query(Metadatum).order_by(desc_op(Metadatum.id)).first()
-    id = meta.id
-    # id=40 
 
-    # get measurements
-    measurements = session.query(Measurement).filter(Measurement.measurement_run == id).order_by(Measurement.id).all()
-    y = [a.temperature for a in measurements]
-    x = [a.timestamp for a in measurements]
+    if not meta:
+        return "Database is empty."
 
-    # linear regression
-    if recent_regression:
-        slope, intercept, start_pos = regression_recent(x, y, recent_regression)
     else:
-        slope, intercept, start_pos = regression_since_minimum(x,y)
+        id = meta.id
+        # id=40 
 
-    regression_available = np.isfinite(intercept) and np.isfinite(slope)    # checks that they are not nan and not infinity
+        # get measurements
+        measurements = session.query(Measurement).filter(Measurement.measurement_run == id).order_by(Measurement.id).all()
+        y = [a.temperature for a in measurements]
+        x = [a.timestamp for a in measurements]
 
-    if regression_available:
-        # temperature growth rate
-        interval = (x[-1] - x[0])/(len(x)-1)                     # time per step [timedelta]
-        steps_per_minute = timedelta(minutes=1) / interval       # intervals per minute [float]
-        degrees_per_minute = slope * steps_per_minute            # convert growth rate per step to growth rate per minute
+        # linear regression
+        if recent_regression:
+            slope, intercept, start_pos = regression_recent(x, y, recent_regression)
+        else:
+            slope, intercept, start_pos = regression_since_minimum(x,y)
 
-        # ETA to target temperature
-        steps_to_37 = (target_temperature - intercept) / slope   # [steps (float)]
-        eta = localize_timezone(x[0] + interval*steps_to_37) if slope > 0 else None
-    
-    else:
-        degrees_per_minute, eta = None, None
+        regression_available = np.isfinite(intercept) and np.isfinite(slope)    # checks that they are not nan and not infinity
 
-    # plot data
-    plot = figure(plot_height=300, sizing_mode='scale_width', x_axis_type='datetime')
-    plot.line(x, y, line_width=3)
+        if regression_available:
+            # temperature growth rate
+            interval = (x[-1] - x[0])/(len(x)-1)                     # time per step [timedelta]
+            steps_per_minute = timedelta(minutes=1) / interval       # intervals per minute [float]
+            degrees_per_minute = slope * steps_per_minute            # convert growth rate per step to growth rate per minute
 
-    # decorate data
-    plot.line([min(x),max(x)], [target_temperature, target_temperature], line_color='red', line_dash='dashed')      # horizontal line at 37 degrees
+            # ETA to target temperature
+            steps_to_37 = (target_temperature - intercept) / slope   # [steps (float)]
+            eta = localize_timezone(x[0] + interval*steps_to_37) if slope > 0 else None
+        
+        else:
+            degrees_per_minute, eta = None, None
 
-    if regression_available:
-        plot.line([x[start_pos], x[-1]], [intercept+slope*start_pos, intercept+slope*(len(x)-1)])                   # regression line
+        # plot data
+        plot = figure(plot_height=300, sizing_mode='scale_width', x_axis_type='datetime')
+        plot.line(x, y, line_width=3)
 
-    script, div = components(plot)
-    start_time = localize_timezone(meta.timestamp)
-    return render_template('adminlte.html', start_time=start_time, metadata=meta, temp=y[-1], eta=eta, degrees_per_minute=degrees_per_minute, plots=[(script,div)])
+        # decorate data
+        plot.line([min(x),max(x)], [target_temperature, target_temperature], line_color='red', line_dash='dashed')      # horizontal line at 37 degrees
+
+        if regression_available:
+            plot.line([x[start_pos], x[-1]], [intercept+slope*start_pos, intercept+slope*(len(x)-1)])                   # regression line
+
+        script, div = components(plot)
+        start_time = localize_timezone(meta.timestamp)
+        return render_template('adminlte.html', start_time=start_time, metadata=meta, temp=y[-1], eta=eta, degrees_per_minute=degrees_per_minute, plots=[(script,div)])
 
 
 if __name__ == '__main__':
