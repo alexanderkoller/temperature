@@ -13,6 +13,7 @@ python main.py
 
 ```
 apt install libsqlite3-dev
+pip3 install -r requirements.txt
 ```
 
 ## Running on a Raspberry Pi
