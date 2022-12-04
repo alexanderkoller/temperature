@@ -115,7 +115,7 @@ def index():
             degrees_per_minute, eta = None, None
 
         # plot data
-        plot = figure(plot_height=300, sizing_mode='scale_width', x_axis_type='datetime')
+        plot = figure(height=300, sizing_mode='scale_width', x_axis_type='datetime')
         plot.line(x, y, line_width=3)
 
         # decorate data
