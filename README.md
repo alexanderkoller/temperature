@@ -9,6 +9,11 @@ Start as follows:
 python main.py
 ```
 
+## Requirements
+
+```
+apt install libsqlite3-dev
+```
 
 ## Running on a Raspberry Pi
 
